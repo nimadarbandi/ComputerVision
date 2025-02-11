@@ -4,9 +4,9 @@ import pprint
 from math import sqrt
 
 input_file = 'combB.img'
-output_file = 'test3C.img'
+output_file = 'combO.jpg'
 
-min_size = 50  # For example, 50 pixels
+min_size = 500  # For example, 50 pixels
 
 ############################################################Functions############################################################
 
@@ -208,6 +208,23 @@ def trace_boundary(component_mask):
     
     return boundary_list
 
+###############################################################
+def Paint_image(labels, output_file, min_size):
+    # Create an RGB image
+    rgb_image = np.zeros((labels.shape[0], labels.shape[1], 3), dtype=np.uint8)
+
+    # Get unique labels
+    unique_labels, counts = np.unique(labels[labels > 0], return_counts=True)
+
+    # Assign random colors to each label
+    for j in range(len(unique_labels)):
+        if counts[j] >= min_size:
+            color = np.random.randint(0, 256, size=3)
+            rgb_image[labels == unique_labels[j]] = color
+
+    # Save the RGB image
+    plt.imsave(output_file, rgb_image)
+
 ##############################################################Main############################################################
 
 # Read the binary image:
@@ -239,3 +256,5 @@ print("perimeter")
 pprint.pprint(perimeters)
 print("compactness")
 pprint.pprint(compactness)
+
+Paint_image(labels, output_file, min_size)
