@@ -4,9 +4,9 @@ import pprint
 from math import sqrt
 
 # Inputs
-input_file = 'combB.img' #the binary image B
+input_file = 'test3B.img' #the binary image B
 min_size = 500 #maximum pixel count for a component to be considered valid
-
+foreground = 255 #the value of the background pixel
 # Outputs
 area = {} #the component size for each component
 centroid = {} # the location of the centroid of each component
@@ -15,7 +15,7 @@ theta = {} #the orientation of axis of ellongation of each component
 eccentricity = {} #the eccentricity of each component
 perimeters = {} #the perimeter of each component
 compactness = {} #the compactness of each component
-output_file = 'combO.jpg' #the color coded displlay of the components of the image B
+output_file = 'test3C.jpg' #the color coded displlay of the components of the image B
 
 ############################################################Functions############################################################
 ########################################################################################################################################################################################
@@ -33,7 +33,7 @@ def iterative_CCL(binary_image):
     for i in range(height):
         for j in range(width):
             #print(binary_image[i, j],end=",")
-            if binary_image[i, j] == 0:  # If pixel is part of a component
+            if binary_image[i, j] == foreground:  # If pixel is part of a component
                 
                 neighbor_labels = [0, 0] #[upper, left] pixels
                 if i > 0 and labels[i-1, j] > 0: #upper pixel has label
@@ -77,7 +77,6 @@ def iterative_CCL(binary_image):
             if merged_set != equivalence[key]:
                 equivalence[key] = merged_set
                 changed = True
-
     # Build a final mapping table based on the equivalance table (for each label, assign the minimum label from its equivalence set.)
     final_map = {}
     for key, eq_set in equivalence.items():
@@ -92,7 +91,6 @@ def iterative_CCL(binary_image):
         for j in range(width):
             if labels[i, j] > 0:
                 labels[i, j] = final_map[labels[i, j]]
-
     return labels
 
 ###########################################################
@@ -110,6 +108,7 @@ def count_components(labels, min_size):
     # Count pixels for each label
     unique_labels, counts = np.unique(labels[labels > 0], return_counts=True)
     for i in range(len(unique_labels)):
+        print(f"Component {unique_labels[i]}: {counts[i]}")
         if counts[i] >= min_size:
             valid_components += 1
             #area
@@ -126,22 +125,28 @@ def count_components(labels, min_size):
             max_row = np.max(row)
             max_col = np.max(col)
             bounding_box[unique_labels[i]] = (min_row, min_col, max_row, max_col)
+            #print("bounding box", unique_labels[i], bounding_box[unique_labels[i]])
             #orientation
             a = np.sum((row - centroid_row) ** 2)
             b = np.sum((col - centroid_col) ** 2)
             c = np.sum((row - centroid_row) * (col - centroid_col))
             theta [unique_labels[i]] = 0.5 * np.arctan2(2 * c, a - b)
             #eccentricity
+            #print("starting eccentricity", unique_labels[i])
             delta = 0.5 * np.sqrt((a - b) ** 2 + 4 * c ** 2)
+            #print("delta", unique_labels[i], delta)
             E1 = (a + b + delta) / 2 #largest eigenvalue
             E2 = (a + b - delta) / 2 #smallest eigenvalue
-            if E1 > 0 :
-                eccentricity[unique_labels[i]] = np.sqrt(1 - (E2 / E1))
+            ER = E2 / E1
+            if E1 > 0:
+                eccentricity[unique_labels[i]] = np.sqrt(1 - (E2 / E1)**2)
             else:
                 eccentricity[unique_labels[i]] = 0
+            #print("starting perimeter", unique_labels[i])
             #perimeter
             component_label = (labels == unique_labels[i]).astype(np.uint8)
-            boundary = get_boundary(component_label)
+            boundary = trace_boundary(component_label)
+            #print("boundary", unique_labels[i], boundary)
             perim = 0
             for j in range(1, len(boundary)):
                 r1, c1 = boundary[j-1]
@@ -153,14 +158,16 @@ def count_components(labels, min_size):
                 else:
                     perim += 1
             perimeters[unique_labels[i]] = perim
+            #print("starting compactness", unique_labels[i])
             #compactness
             compactness[unique_labels[i]] = (perimeters[unique_labels[i]] ** 2) / area[unique_labels[i]]
+            #print("finished component", unique_labels[i])
 
     return valid_components, area, centroid, bounding_box, theta, eccentricity, perimeters, compactness
 
 ###############################################
 
-def get_boundary(component_label):
+def trace_boundary(component_label):
 
     # getting component pixels
     rows, cols = np.where(component_label == 1)
@@ -183,6 +190,9 @@ def get_boundary(component_label):
         start_pixel = 0
     
     current = s
+    visited = set()
+    visited.add(current)
+
     while True:
         found = False
         next_pixel = None
@@ -195,7 +205,7 @@ def get_boundary(component_label):
             if (candidate[0] < 0 or candidate[0] >= component_label.shape[0] or 
                 candidate[1] < 0 or candidate[1] >= component_label.shape[1]):
                 continue
-            if component_label[candidate] == 1:
+            if component_label[candidate] == 1 and candidate not in visited:
                 # The first neighbor that is part of the component.
                 next_pixel = candidate
                 found = True
@@ -207,7 +217,7 @@ def get_boundary(component_label):
             break
         # Add the found boundary pixel.
         boundary_list.append(next_pixel)
-
+        visited.add(next_pixel)
         if next_pixel == s:
             break
         current = next_pixel
@@ -215,6 +225,10 @@ def get_boundary(component_label):
     return boundary_list
 
 ###############################################################
+
+
+
+############################################################################
 def Paint_image(labels, output_file, min_size):
     # Create an RGB image
     rgb_image = np.zeros((labels.shape[0], labels.shape[1], 3), dtype=np.uint8)
@@ -243,9 +257,9 @@ binary_image = binary_image.reshape((512, 512))  # adjust dimensions as needed
 #conncected component labeling
 labels = iterative_CCL(binary_image)
 
-
+print("count started")
 total_components, area, centroid, bounding_box, theta, eccentricity, perimeters, compactness = count_components(labels, min_size)
-
+print("count finished")
 
 for label in area:
     print(f"Component {label}:")
