@@ -156,7 +156,7 @@ def count_components(labels, min_size):
             #compactness
             compactness[unique_labels[i]] = (perimeters[unique_labels[i]] ** 2) / area[unique_labels[i]]
 
-    return valid_components, area, centroid, bounding_box, thetha, eccentricity, perimeters, compactness
+    return valid_components, area, centroid, bounding_box, theta, eccentricity, perimeters, compactness
 
 ###############################################
 
@@ -245,16 +245,19 @@ labels = iterative_CCL(binary_image)
 
 
 total_components, area, centroid, bounding_box, theta, eccentricity, perimeters, compactness = count_components(labels, min_size)
-print("Number of components:", total_components)
-pprint.pprint(area)
-pprint.pprint(centroid)
-pprint.pprint(bounding_box)
-pprint.pprint(theta)
-print("eccentricity")
-pprint.pprint(eccentricity)
-print("perimeter")
-pprint.pprint(perimeters)
-print("compactness")
-pprint.pprint(compactness)
+
+
+for label in area:
+    print(f"Component {label}:")
+    print(f"  Area: {area[label]}")
+    print(f"  Centroid: ({centroid[label][0]:.2f}, {centroid[label][1]:.2f})")
+    print(f"  Bounding Box(min to max corners): min:({bounding_box[label][0]:.0f}, {bounding_box[label][1]:.0f}), max:({bounding_box[label][2]:.0f}, {bounding_box[label][3]:.0f})")
+    print(f"  Orientation (Theta): {theta[label]:.2f} radians")
+    print(f"  Eccentricity: {eccentricity[label]:.2f}")
+    print(f"  Perimeter: {perimeters[label]:.2f}")
+    print(f"  Compactness: {compactness[label]:.2f}")
+
+print(f"\nTotal number of components: {total_components}\n")
+
 
 Paint_image(labels, output_file, min_size)
