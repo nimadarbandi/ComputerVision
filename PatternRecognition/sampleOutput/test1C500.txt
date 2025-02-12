@@ -1,0 +1,67 @@
+Component 1:
+  Area: 39759
+  Centroid: (200.58, 305.78)
+  Bounding Box(min to max corners): min:(14, 136), max:(321, 467)
+  Orientation (Theta): -1.55 radians
+  Eccentricity: 0.45
+  Perimeter: 392.57
+  Compactness: 3.88
+Component 25:
+  Area: 15669
+  Centroid: (211.22, 47.66)
+  Bounding Box(min to max corners): min:(131, 0), max:(315, 106)
+  Orientation (Theta): -0.22 radians
+  Eccentricity: 0.79
+  Perimeter: 37.90
+  Compactness: 0.09
+Component 96:
+  Area: 2771
+  Centroid: (201.01, 489.50)
+  Bounding Box(min to max corners): min:(150, 475), max:(263, 509)
+  Orientation (Theta): -0.06 radians
+  Eccentricity: 0.90
+  Perimeter: 15.66
+  Compactness: 0.09
+Component 248:
+  Area: 719
+  Centroid: (315.30, 265.57)
+  Bounding Box(min to max corners): min:(304, 140), max:(326, 402)
+  Orientation (Theta): -1.49 radians
+  Eccentricity: 0.94
+  Perimeter: 543.40
+  Compactness: 410.68
+Component 253:
+  Area: 11077
+  Centroid: (351.15, 262.32)
+  Bounding Box(min to max corners): min:(308, 141), max:(392, 401)
+  Orientation (Theta): -1.54 radians
+  Eccentricity: 0.90
+  Perimeter: 116.38
+  Compactness: 1.22
+Component 388:
+  Area: 593
+  Centroid: (375.89, 150.43)
+  Bounding Box(min to max corners): min:(355, 124), max:(395, 178)
+  Orientation (Theta): 1.01 radians
+  Eccentricity: 0.85
+  Perimeter: 207.55
+  Compactness: 72.64
+Component 438:
+  Area: 6680
+  Centroid: (410.91, 60.59)
+  Bounding Box(min to max corners): min:(376, 0), max:(458, 153)
+  Orientation (Theta): 1.52 radians
+  Eccentricity: 0.84
+  Perimeter: 537.82
+  Compactness: 43.30
+Component 467:
+  Area: 2668
+  Centroid: (416.88, 354.15)
+  Bounding Box(min to max corners): min:(406, 272), max:(428, 450)
+  Orientation (Theta): 1.54 radians
+  Eccentricity: 0.94
+  Perimeter: 335.33
+  Compactness: 42.15
+
+Total number of components: 8
+

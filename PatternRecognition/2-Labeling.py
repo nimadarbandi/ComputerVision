@@ -4,8 +4,8 @@ import pprint
 from math import sqrt
 
 # Inputs
-input_file = 'test3B.img' #the binary image B
-min_size = 500 #maximum pixel count for a component to be considered valid
+input_file = 'combB.img' #the binary image B
+min_size = 1000 #maximum pixel count for a component to be considered valid
 foreground = 255 #the value of the background pixel
 # Outputs
 area = {} #the component size for each component
@@ -15,7 +15,7 @@ theta = {} #the orientation of axis of ellongation of each component
 eccentricity = {} #the eccentricity of each component
 perimeters = {} #the perimeter of each component
 compactness = {} #the compactness of each component
-output_file = 'test3C.jpg' #the color coded displlay of the components of the image B
+output_file = 'combC1000.jpg' #the color coded displlay of the components of the image B
 
 ############################################################Functions############################################################
 ########################################################################################################################################################################################
@@ -108,7 +108,7 @@ def count_components(labels, min_size):
     # Count pixels for each label
     unique_labels, counts = np.unique(labels[labels > 0], return_counts=True)
     for i in range(len(unique_labels)):
-        print(f"Component {unique_labels[i]}: {counts[i]}")
+        #print(f"Component {unique_labels[i]}: {counts[i]}")
         if counts[i] >= min_size:
             valid_components += 1
             #area
@@ -253,9 +253,9 @@ binary_image = binary_image.reshape((512, 512))  # adjust dimensions as needed
 #conncected component labeling
 labels = iterative_CCL(binary_image)
 
-print("count started")
+#print("count started")
 total_components, area, centroid, bounding_box, theta, eccentricity, perimeters, compactness = count_components(labels, min_size)
-print("count finished")
+#print("count finished")
 
 for label in area:
     print(f"Component {label}:")
