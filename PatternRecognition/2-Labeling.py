@@ -224,10 +224,6 @@ def trace_boundary(component_label):
     
     return boundary_list
 
-###############################################################
-
-
-
 ############################################################################
 def Paint_image(labels, output_file, min_size):
     # Create an RGB image
