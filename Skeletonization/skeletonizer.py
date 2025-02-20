@@ -14,7 +14,7 @@ recunstruncted_file = 'rec-combB.img'
 #Distance Type used is Chessboard
 
 
-####################################Functions######################################################################
+###################################################Functions#######################################################
 ###################################################################################################################
 
 def iterative_distance_propagation(binary_img):
@@ -54,7 +54,6 @@ def iterative_distance_propagation(binary_img):
 def get_neighbors(dist_map, i, j, distance_type):
     neighbors = []
     rows, cols = dist_map.shape
-
     if distance_type == "manhattan":
         if i > 0:  
             neighbors.append(dist_map[i-1, j])  # Up
@@ -70,9 +69,10 @@ def get_neighbors(dist_map, i, j, distance_type):
             for dj in [-1, 0, 1]:
                 if di == 0 and dj == 0:
                     continue  # Skip the center pixel
-                ni, nj = i + di, j + dj
+                ni = i + di
+                nj = j + dj
                 if 0 <= ni < rows and 0 <= nj < cols:
-                    neighbors.append(dist_map[ni, nj])  # Add valid neighbors
+                    neighbors.append(dist_map[ni, nj])
 
     return neighbors
 
