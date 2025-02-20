@@ -32,8 +32,8 @@ def iterative_distance_propagation(binary_img):
 
         for i in range(0, rows):
             for j in range(0, cols):
-                if temp_img[i, j] > 0 :  # Process foreground pixels
-                    neighbors = get_neighbors(temp_img, i, j, "chessboard")
+                if temp_img[i, j] > 0 :  # foreground pixels
+                    neighbors = neighbors(temp_img, i, j)
                     min_value = min(neighbors) + 1
                     if min_value < temp_img[i, j]:
                         temp_img[i, j] = min_value
@@ -41,7 +41,7 @@ def iterative_distance_propagation(binary_img):
 
         distance_image = temp_img.copy()
 
-        # Convergence check
+        # Convergence
         if not changed:
             break
 
@@ -51,29 +51,17 @@ def iterative_distance_propagation(binary_img):
 
 
 
-def get_neighbors(dist_map, i, j, distance_type):
+def neighbors(dist_img, i, j):
     neighbors = []
-    rows, cols = dist_map.shape
-    if distance_type == "manhattan":
-        if i > 0:  
-            neighbors.append(dist_map[i-1, j])  # Up
-        if i < rows - 1:  
-            neighbors.append(dist_map[i+1, j])  # Down
-        if j > 0:  
-            neighbors.append(dist_map[i, j-1])  # Left
-        if j < cols - 1:  
-            neighbors.append(dist_map[i, j+1])  # Right
-
-    elif distance_type == "chessboard":
-        for di in [-1, 0, 1]:
-            for dj in [-1, 0, 1]:
-                if di == 0 and dj == 0:
-                    continue  # Skip the center pixel
-                ni = i + di
-                nj = j + dj
-                if 0 <= ni < rows and 0 <= nj < cols:
-                    neighbors.append(dist_map[ni, nj])
-
+    rows, cols = dist_img.shape
+    for di in [-1, 0, 1]:
+        for dj in [-1, 0, 1]:
+            if di == 0 and dj == 0:
+                continue  # center pixel
+            ni = i + di
+            nj = j + dj
+            if 0 <= ni < rows and 0 <= nj < cols:
+                neighbors.append(dist_img[ni, nj])
     return neighbors
 
 
@@ -86,7 +74,7 @@ def extract_skeleton(distance_image):
         for j in range(0, cols):
             if distance_image[i, j] > 0:
                 # Local maximum in distance map
-                if distance_image[i, j] >= max(get_neighbors(distance_image, i, j, "chessboard")):
+                if distance_image[i, j] >= max(neighbors(distance_image, i, j)):
                     skeleton[i, j] = distance_image[i, j]
     return skeleton
 
