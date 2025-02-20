@@ -4,95 +4,77 @@
 
 import cv2
 import numpy as np
+input_file = "combB.img"
+input_file = '/Users/nima/ComputerVision/ComputerVision/Skeletonization/'+input_file #the binary image B
+foreground = 255 #select between 0 and 255 based on the input image
+skeleton_file = 'combM.img' #the medial axis image M
+distance_file = 'combD.img' 
+recunstruncted_file = 'rec-combB.img' 
 
-input_file = '/Users/nima/ComputerVision/ComputerVision/Skeletonization/combB.img' #the binary image B
-foreground = 0
-output_file = 'combM.img' #the output file
-distance_file = 'combD.img' #the output file for distance transform
-distance_type = 'euclidean' #the distance metric to use
+#Distance Type used is Chessboard
+
 
 ####################################Functions######################################################################
-#####################################################################################################
+###################################################################################################################
 
-# Compute the iterative distance propagation
-# 
-
-
-def iterative_distance_propagation(binary_img, distance_type="manhattan"):
-    """
-    Implements the Iterative Distance Propagation (IDP) algorithm.
-    
-    Args:
-        binary_img (numpy.ndarray): Binary input image (0 for foreground, 255 for background).
-        distance_type (str): Distance metric ('euclidean', 'manhattan', 'chessboard').
-
-    Returns:
-        numpy.ndarray: Distance map of the same size as input binary image.
-    """
+def iterative_distance_propagation(binary_img):
+ 
     rows, cols = binary_img.shape
-    # Corrected initialization: Foreground = inf, Background = 0
-    dist_map = np.where(binary_img == 0, np.inf, 0)
+   
+    # Corrected input image: Foreground = inf, Background = 0
+    distance_image = np.where(binary_img == 0, 0, np.inf)
 
     iteration = 0
     while True:
         iteration += 1
         changed = False
-        new_map = dist_map.copy()
+        temp_img = distance_image.copy()
 
-        # Forward pass (top-left to bottom-right)
-        for i in range(1, rows-1):
-            for j in range(1, cols-1):
-                if binary_img[i, j] == 0:  # Process foreground only
-                    neighbors = get_neighbors(new_map, i, j, distance_type)
+        for i in range(0, rows):
+            for j in range(0, cols):
+                if temp_img[i, j] > 0 :  # Process foreground pixels
+                    neighbors = get_neighbors(temp_img, i, j, "chessboard")
                     min_value = min(neighbors) + 1
-                    if min_value < dist_map[i, j]:
-                        new_map[i, j] = min_value
+                    if min_value < temp_img[i, j]:
+                        temp_img[i, j] = min_value
                         changed = True
 
-        dist_map = new_map.copy()
-
-        # Backward pass (bottom-right to top-left)
-        for i in range(rows-2, 0, -1):
-            for j in range(cols-2, 0, -1):
-                if binary_img[i, j] == 0:
-                    neighbors = get_neighbors(new_map, i, j, distance_type)
-                    min_value = min(neighbors) + 1
-                    if min_value < dist_map[i, j]:
-                        new_map[i, j] = min_value
-                        changed = True
-
-        dist_map = new_map.copy()
+        distance_image = temp_img.copy()
 
         # Convergence check
         if not changed:
             break
 
     print(f"IDP converged after {iteration} iterations.")
-    return dist_map
+    return distance_image
 
 
 
 
-
-
-
-
-
-
-def get_four_neighbors(dist_img, i, j):
-    return [dist_img[i-1, j], dist_img[i+1, j], dist_img[i, j-1], dist_img[i, j+1]]
-
-# Get neighbor distances based on distance metric
 def get_neighbors(dist_map, i, j, distance_type):
-    if distance_type == "manhattan":
-        return [dist_map[i-1, j], dist_map[i+1, j], dist_map[i, j-1], dist_map[i, j+1]]
-    elif distance_type == "chessboard":
-        return [dist_map[i-1, j], dist_map[i+1, j], dist_map[i, j-1], dist_map[i, j+1],
-                dist_map[i-1, j-1], dist_map[i-1, j+1], dist_map[i+1, j-1], dist_map[i+1, j+1]]
-    elif distance_type == "euclidean":
-        return [dist_map[i-1, j], dist_map[i+1, j], dist_map[i, j-1], dist_map[i, j+1],
-                dist_map[i-1, j-1]*1.41, dist_map[i-1, j+1]*1.41, dist_map[i+1, j-1]*1.41, dist_map[i+1, j+1]*1.41]
+    neighbors = []
+    rows, cols = dist_map.shape
 
+    if distance_type == "manhattan":
+        if i > 0:  
+            neighbors.append(dist_map[i-1, j])  # Up
+        if i < rows - 1:  
+            neighbors.append(dist_map[i+1, j])  # Down
+        if j > 0:  
+            neighbors.append(dist_map[i, j-1])  # Left
+        if j < cols - 1:  
+            neighbors.append(dist_map[i, j+1])  # Right
+
+    elif distance_type == "chessboard":
+        for di in [-1, 0, 1]:
+            for dj in [-1, 0, 1]:
+                if di == 0 and dj == 0:
+                    continue  # Skip the center pixel
+                ni, nj = i + di, j + dj
+                if 0 <= ni < rows and 0 <= nj < cols:
+                    neighbors.append(dist_map[ni, nj])  # Add valid neighbors
+
+    return neighbors
 
 
 # Extract the skeleton from the distance map
@@ -100,29 +82,48 @@ def extract_skeleton(distance_image):
     rows, cols = distance_image.shape
     skeleton = np.zeros_like(distance_image, dtype=np.uint8)
 
-    for i in range(1, rows-1):
-        for j in range(1, cols-1):
+    for i in range(0, rows):
+        for j in range(0, cols):
             if distance_image[i, j] > 0:
                 # Local maximum in distance map
-                if distance_image[i, j] >= max(get_neighbors(distance_image, i, j, "euclidean")):
-                    skeleton[i, j] = 255
-                    #print("Skeleton pixel at:", i, j)
+                if distance_image[i, j] >= max(get_neighbors(distance_image, i, j, "chessboard")):
+                    skeleton[i, j] = distance_image[i, j]
     return skeleton
 
+def reconstruct_image(skeleton):
+    rows, cols = skeleton.shape
+    image_M = np.zeros((rows, cols), dtype=np.uint8)
+    for i in range(0, rows):
+        for j in range(0, cols):
+            if skeleton[i, j] > 0:
+               radius = int(skeleton[i, j])
+               for m in range(i-radius,i+radius):
+                     for n in range(j-radius,j+radius):
+                        if 0 <= m < rows and 0 <= n < cols:
+                                image_M[m, n] = 255
+    return image_M
 
+############################################################################################################################################################
+# Main
+############################################################################################################################################################
 
 binary_image = np.fromfile(input_file, dtype=np.uint8)
 binary_image = binary_image.reshape((512, 512))  # adjust dimensions as needed
+if foreground == 0: # inverse the images with white background
+    binary_image = 255 - binary_image
 
-distance_map = iterative_distance_propagation(binary_image, distance_type="chessboard")
-skeleton = extract_skeleton(distance_map)
-skeleton.tofile(output_file)
-distance_map.tofile(distance_file)
-for i in range(0, 512):
-    for j in range(0, 512):
-        print(distance_map[i][j], end="")
-# Display the skeleton and distance map
-cv2.imshow('Skeleton', skeleton)
-#cv2.imshow('Distance Map', distance_map)
+distance_map = iterative_distance_propagation(binary_image)
+
+
+skeleton_M = extract_skeleton(distance_map)
+skeleton_image = np.where(skeleton_M > 0, 255, 0).astype(np.uint8)
+recons_image = reconstruct_image(skeleton_M)
+
+cv2.imshow('Binary Image', binary_image)
+cv2.imshow('Skeleton', skeleton_image)
+cv2.imshow('Reconstructed Image', recons_image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+skeleton_M.tofile(skeleton_file)
+recons_image.tofile(recunstruncted_file)
+distance_map.tofile(distance_file)

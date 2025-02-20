@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-filename = 'combB.img'
+filename = 'test1B.img'
 filepath = '/Users/nima/ComputerVision/ComputerVision/PatternRecognition/'
 
 
