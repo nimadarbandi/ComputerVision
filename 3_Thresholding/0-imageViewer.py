@@ -1,14 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-filename = 'test1B.img'
-filepath = '/Users/nima/ComputerVision/ComputerVision/PatternRecognition/'
+filename = 'comb.img'
+filepath = '3_Thresholding/'
 
 
 # Read the raw binary data
 image_data = np.fromfile(filepath + filename, dtype=np.uint8)
 #header stipping
-#image_data = image_data[512:]
+image_data = image_data[512:]
 
 
 # Reshape the data into an array
