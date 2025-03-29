@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-input_file = '3_Thresholding/test2.img'
+input_file = '3_Thresholding/test3.img'
 output_file = '3_Thresholding/test1B.img'
 
 # ---------------------------------------------------------------------
@@ -91,6 +91,7 @@ binary_image = np.where(image_data > threshold_value, 255, 0).astype(np.uint8)
 
 # Display the binary image peakiness thresholding
 title = f'Peakiness Thresholding (Threshold = {threshold_value})'
+show_hist(hist)
 show_images(image_data, binary_image, title)
 
 
