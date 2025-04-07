@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # --------------------------- IMAGE READING ---------------------------
-input_file = '4_LoG/comb.img'
+input_file = '4_LoG/test3.img'
 output_file = '4_LoG/test1B.img'  # Optional
 
 # Read the raw binary data, skip header (first 512 bytes), and reshape to 512x512
@@ -148,16 +148,16 @@ def edge_focusing(image, sigma_start=5.0, sigma_end=1.0, delta_sigma=0.5, show_v
 
 #  Display the original image and the edge maps for σ = 5.0, 4.0, 3.0, 2.0, 1.0
 def show_results(image, edge_maps):
-    plt.figure(figsize=(15, 6))
+    plt.figure(figsize=(6, 8.5))
     for idx, sigma_val in enumerate(edge_maps.keys()):
         # Display the original image (same for all)
-        plt.subplot(2, 5, idx + 1)
+        plt.subplot(3, 2, 1)
         plt.imshow(image, cmap='gray')
         plt.title('Original')
         plt.axis('off')
         
         # Display the edge map for this sigma value
-        plt.subplot(2, 5, idx + 1 + 5)
+        plt.subplot(3, 2, idx + 2)
         plt.imshow(edge_maps[sigma_val], cmap='gray')
         plt.title(f'Edge Map σ={sigma_val}')
         plt.axis('off')
@@ -168,8 +168,7 @@ def show_results(image, edge_maps):
 # --------------------------- Main ---------------------------
 
 
-edge_maps = edge_focusing(image_data)
+edge_maps = edge_focusing(image_data, sigma_start=5)
 show_results(image_data, edge_maps)
 
-# Optionally, save one of the edge maps to file
 # np.tofile(edge_maps[1.0], output_file)
