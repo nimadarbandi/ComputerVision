@@ -1,0 +1,10 @@
+name: he_otsu
+channels:
+  - anaconda
+dependencies:
+  - python>=3.10
+  - numpy
+  - scikit-image
+  - matplotlib
+  - jupyter
+  - conda-forge::histolab
