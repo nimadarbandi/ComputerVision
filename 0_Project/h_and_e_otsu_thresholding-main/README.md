@@ -18,8 +18,13 @@ git clone git@gitlab.developers.cam.ac.uk:bas43/h_and_e_otsu_thresholding.git
 cd h_and_e_otsu_thresholding
 conda env create -f requirements.conda.yml
 conda activate he_otsu
+pip install histolab ipykernel 
+python -m ipykernel install --user --name he_otsu --display-name "Python (he_otsu_histo)"
+jupyter notebook
 ```
-
+Then Open your .ipynb file.
+At the top, click “Kernel” > “Change Kernel”.
+Select “Python (he_otsu)”.
 
 ## Authors and acknowledgment
 
