@@ -8,6 +8,6 @@ dependencies:
   - opencv
   - openslide-python
   - py-opencv
-  - pixman=0.36.0
+ # - pixman=0.36.0
   - pandas
   - libiconv
